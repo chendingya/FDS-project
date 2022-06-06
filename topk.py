@@ -9,7 +9,6 @@ if __name__ == "__main__":
     k = command[0]  # the first is topk
     lens = len(command)
 
-
     # getExcel:
     # 实例化
     wb = Workbook()
@@ -44,19 +43,27 @@ if __name__ == "__main__":
             similarities_of_data_element[i] = difflib.SequenceMatcher(None, command[3], boardC[i]).ratio()
 
     # choose the top50percent:
-    num_of_chosen = int(k)
+    num_of_chosen = 0
+    numk = int(k)
+    for i in range(0, max_row):
+        if similarities_of_data_element[i] >= 0.5:
+            num_of_chosen += 1
+
+    if numk > num_of_chosen:
+        num_of_chosen = numk
     num_dict = {}
     for i in range(len(similarities_of_data_element)):
         num_dict[i] = similarities_of_data_element[i]
     res_list = sorted(num_dict.items(), key=lambda e: e[1])
-    while similarities_of_data_element[max_row - num_of_chosen - 1] == similarities_of_data_element[max_row - num_of_chosen] :
+    while similarities_of_data_element[max_row - num_of_chosen - 1] == similarities_of_data_element[
+        max_row - num_of_chosen] and max_row - num_of_chosen - 1 >= 0:
         num_of_chosen = num_of_chosen + 1
     data_element_largestTopk_index = list([one[0] for one in res_list[::-1][:num_of_chosen]])
 
     print("num of chosen is ", num_of_chosen)
 
     ###
-
+    print("#### data element largest topk index: similarities of data element")
     for i in range(0, num_of_chosen):
         print(data_element_largestTopk_index[i], end=' ')
         print(similarities_of_data_element[data_element_largestTopk_index[i]])
@@ -107,10 +114,11 @@ if __name__ == "__main__":
     # calculate the similarities:
     similarities = [0 for i in range(0, num_of_chosen)]
     for i in range(0, num_of_chosen):
-        similarities[i] = (similarities_of_table_Chinese_name[i] + similarities_of_institute_name[i] + similarities_of_data_element[data_element_largestTopk_index[i]]) / 3
+        similarities[i] = (similarities_of_table_Chinese_name[i] + similarities_of_institute_name[i] +
+                           similarities_of_data_element[data_element_largestTopk_index[i]]) / 3
 
     ###
-
+    print("#### data_element_largestTopk_index[i]: similarities[i]")
     for i in range(0, num_of_chosen):
         print(data_element_largestTopk_index[i], end=' ')
         print(similarities[i])
@@ -120,17 +128,22 @@ if __name__ == "__main__":
 
     # rank the topk:
     num_of_topk = int(k)
-    num_dict = {}
+    num_sort = {}
     for i in range(len(similarities)):
-        num_dict[i] = similarities[i]
-    res_list = sorted(num_dict.items(), key=lambda e: e[1])
-    largestTopk_index = list([one[0] for one in res_list[::-1][:num_of_chosen]])
+        num_sort[i] = similarities[i]
+    res_list2 = sorted(num_sort.items(), key=lambda e: e[1])
+    largestTopk_index = list([one[0] for one in res_list2[::-1][:num_of_topk]])
+
+    ###
+    print("#### largestTopk_index[i]: similarities[largestTopk_index[i]")
+    for i in range(0, num_of_topk):
+        print(data_element_largestTopk_index[largestTopk_index[i]], end=' ')
+        print(similarities[largestTopk_index[i]])
+    print()
+    print()
+    ###
 
     # print:
-    if num_of_topk > num_of_chosen:
-        print("Please enter a smaller k! NO MORE THAN", num_of_chosen)
-    else:
-        for i in range(0, num_of_topk):
-            print(largestTopk_index[i] + 1, boardA[largestTopk_index[i]], boardB[largestTopk_index[i]], boardC[largestTopk_index[i]], similarities[largestTopk_index[i]])
-
-
+    for i in range(0, num_of_topk):
+        print(data_element_largestTopk_index[largestTopk_index[i]] + 1, boardA[data_element_largestTopk_index[largestTopk_index[i]]], boardB[data_element_largestTopk_index[largestTopk_index[i]]],
+              boardC[data_element_largestTopk_index[largestTopk_index[i]]], similarities[largestTopk_index[i]])
